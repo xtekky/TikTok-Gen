@@ -1,6 +1,8 @@
-from tkinter import S
 import requests
 import json
+import threading
+import random
+import re
 
 proxy = '2kicnOO3:neMghWGg9N@nprx.rainproxy.io:5000'
 proxies = {
@@ -27,6 +29,7 @@ class Gen:
             'sec-fetch-mode': 'navigate',
             'sec-fetch-site': 'none',
             'sec-fetch-user': '?1',
+            'cookie': str(self.__cookie_to_str(self.__client.cookies.get_dict())),
             'upgrade-insecure-requests': '1',
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
         }
@@ -34,17 +37,26 @@ class Gen:
         __base_headers.update(addon)
         
         return __base_headers
+    
+    def __cookie_to_str(self, cookies) -> str:
+        cookies_str = ""
+        for i in cookies.items():
+            cookies_str = cookies_str + i[0] + "=" + i[1] + "; "
+        return cookies_str[: len(cookies_str) - 2]
 
-    def __get__cookies(self) -> None:
+    def __get_wid(self) -> str:
 
-        self.__client.get(
+        __html = self.__client.get(
             url = 'https://www.tiktok.com/signup/phone-or-email/email',
             headers = self.__base_headers()
         )
+        return str(
+            re.findall(r'wid":"(\d*)"', __html.text)[0]
+        )
     
     def main(self):
-        self.__get__cookies()
-        
-        print(self.__client.cookies.get_dict())
-        
+        __wid = self.__get_wid()
+        print()
+
+
 Gen().main()
