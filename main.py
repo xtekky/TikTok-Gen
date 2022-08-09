@@ -1,18 +1,49 @@
 import requests
 import json
+import time
 import threading
 import random
 import re
 
-proxy = '2kicnOO3:neMghWGg9N@nprx.rainproxy.io:5000'
-proxies = {
-    'http': f'http://{proxy}',
-    'https': f'http://{proxy}'
-}
+from urllib.parse import *
 
 class Gen:
     def __init__(self):
         self.__client = requests.Session()
+        self.__wid = None
+        
+    def __base_params(self, addon: json = {}):
+        __base_params = {
+            "aid": 1459,
+            "app_language": "en",
+            "app_name": "tiktok_web",
+            "battery_info": 1,
+            "browser_language": "en",
+            "browser_name": "Mozilla",
+            "browser_online": True,
+            "browser_platform": "Win32",
+            "browser_version": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+            "channel": "tiktok_web",
+            "cookie_enabled": True,
+            "device_id": self.__wid,
+            "device_platform": "web_pc",
+            "focus_state": True,
+            "history_len": "2",
+            "is_fullscreen": False,
+            "is_page_visible": True,
+            "os": "windows",
+            "region": "FR",
+            "screen_height": 1080,
+            "screen_width": 1920,
+            "tz_name": "Europe/Paris",
+            "webcast_language": "en",
+            "X-Bogus": "",
+            "_signature": ""
+        }
+        
+        __base_params.update(addon)
+        
+        return urlencode(__base_params)
     
     def __base_headers(self, addon: json = {}) -> json:
 
@@ -38,7 +69,10 @@ class Gen:
         
         return __base_headers
     
-    def __cookie_to_str(self, cookies) -> str:
+    def __cache_token(self, __wid: str) -> str:
+        return '{%22_type_%22:%22default%22%2C%22user_unique_id%22:%22' + __wid + '%22%2C%22timestamp%22:' + str(int(time.time())) + '}'
+    
+    def __cookie_to_str(self, cookies: json) -> str:
         cookies_str = ""
         for i in cookies.items():
             cookies_str = cookies_str + i[0] + "=" + i[1] + "; "
@@ -50,13 +84,33 @@ class Gen:
             url = 'https://www.tiktok.com/signup/phone-or-email/email',
             headers = self.__base_headers()
         )
+        
         return str(
             re.findall(r'wid":"(\d*)"', __html.text)[0]
         )
+        
+    def __account_info(self):
+        __response = requests.get(
+            url = (
+                'https://'
+                + 'www.tiktok.com'
+                + '/passport/web/account/info/?'
+                + self.__base_params()
+            ),
+            headers = self.__base_headers()
+        )
     
     def main(self):
-        __wid = self.__get_wid()
-        print()
+        self.__wid = self.__get_wid()
+        self.__client.cookies.set(
+            "__tea_cache_tokens_1988", self.__cache_token(self.__wid)
+        )
+        
 
 
-Gen().main()
+# Gen().main()
+if __name__ == '__main__':
+    Gen().main()
+    # url = 'https://www.tiktok.com/passport/web/account/info/?aid=1459&app_language=en&app_name=tiktok_web&battery_info=1&browser_language=en&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F103.0.0.0%20Safari%2F537.36&channel=tiktok_web&cookie_enabled=true&device_id=7129986638319289862&device_platform=web_pc&focus_state=true&from_page=&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=FR&screen_height=1080&screen_width=1920&tz_name=Europe%2FParis&webcast_language=en&msToken=&X-Bogus=DFSzswVOm30ANGA/S6RswGXyYJWC&_signature=_02B4Z6wo00001QzTIbAAAIDAL3IPHGpxIqEM0yUAACHI1c'
+    # print(json.dumps(dict(parse_qsl(urlsplit(url).query)), indent=4))
+    
