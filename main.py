@@ -6,6 +6,8 @@ import random
 import re
 
 from urllib.parse import *
+from utils.signature import Signature
+from utils.bogus import XBogus
 
 class Gen:
     def __init__(self):
@@ -13,32 +15,33 @@ class Gen:
         self.__wid = None
         
     def __base_params(self, addon: json = {}):
+        
         __base_params = {
-            "aid": 1459,
-            "app_language": "en",
-            "app_name": "tiktok_web",
-            "battery_info": 1,
+            "aid"             : 1459,
+            "app_language"    : "en",
+            "app_name"        : "tiktok_web",
+            "battery_info"    : 1,
             "browser_language": "en",
-            "browser_name": "Mozilla",
-            "browser_online": True,
+            "browser_name"    : "Mozilla",
+            "browser_online"  : True,
             "browser_platform": "Win32",
-            "browser_version": "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
-            "channel": "tiktok_web",
-            "cookie_enabled": True,
-            "device_id": self.__wid,
-            "device_platform": "web_pc",
-            "focus_state": True,
-            "history_len": "2",
-            "is_fullscreen": False,
-            "is_page_visible": True,
-            "os": "windows",
-            "region": "FR",
-            "screen_height": 1080,
-            "screen_width": 1920,
-            "tz_name": "Europe/Paris",
+            "browser_version" : "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36",
+            "channel"         : "tiktok_web",
+            "cookie_enabled"  : True,
+            "device_id"       : self.__wid,
+            "device_platform" : "web_pc",
+            "focus_state"     : True,
+            "history_len"     : "2",
+            "is_fullscreen"   : False,
+            "is_page_visible" : True,
+            "os"              : "windows",
+            "region"          : "FR",
+            "screen_height"   : 1080,
+            "screen_width"    : 1920,
+            "tz_name"         : "Europe/Paris",
             "webcast_language": "en",
-            "X-Bogus": "",
-            "_signature": ""
+            "X-Bogus"         : '%s' % XBogus.get_value(),
+            "_signature"      : '%s' % Signature.get_value()
         }
         
         __base_params.update(addon)
@@ -48,21 +51,25 @@ class Gen:
     def __base_headers(self, addon: json = {}) -> json:
 
         __base_headers = {
-            'authority': 'www.tiktok.com',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-            'accept-language': 'en',
-            'cache-control': 'no-cache',
-            'pragma': 'no-cache',
-            'sec-ch-ua': '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
-            'sec-ch-ua-mobile': '?0',
+            'authority'         : 'www.tiktok.com',
+            'accept'            : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+            'accept-language'   : 'en',
+            'cache-control'     : 'no-cache',
+            'pragma'            : 'no-cache',
+            'sec-ch-ua'         : '".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"',
+            'sec-ch-ua-mobile'  : '?0',
             'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'document',
-            'sec-fetch-mode': 'navigate',
-            'sec-fetch-site': 'none',
-            'sec-fetch-user': '?1',
-            'cookie': str(self.__cookie_to_str(self.__client.cookies.get_dict())),
+            'sec-fetch-dest'    : 'document',
+            'sec-fetch-mode'    : 'navigate',
+            'sec-fetch-site'    : 'none',
+            'sec-fetch-user'    : '?1',
+            'cookie'            : str(
+                    self.__cookie_to_str(
+                    self.__client.cookies.get_dict()
+                )
+            ),
             'upgrade-insecure-requests': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
+            'user-agent'               : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36',
         }
         
         __base_headers.update(addon)
@@ -99,14 +106,16 @@ class Gen:
             ),
             headers = self.__base_headers()
         )
+        
+        return __response.json()
     
     def main(self):
         self.__wid = self.__get_wid()
         self.__client.cookies.set(
             "__tea_cache_tokens_1988", self.__cache_token(self.__wid)
         )
-        
-
+        self.__account_info = self.__account_info()
+        print(self.__account_info)
 
 # Gen().main()
 if __name__ == '__main__':
