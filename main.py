@@ -4,20 +4,22 @@ import time
 import threading
 import random
 import re
+import curlify
 
 from urllib.parse import *
 from utils.signer.signature import Signer
 from utils.bogus import XBogus
+from utils.mstoken import msToken
 
 class Gen:
     def __init__(self):
         self.__client = requests.Session()
         self.__wid = None
         
-    def __base_params(self, __url_base, addon: json = {}):
+    def __base_params(self, __url_base: str, __aid: int = 1988, addon: json = {}):
         
         __base_params = {
-            "aid"             : 1459,
+            "aid"             : __aid,
             "app_language"    : "en",
             "app_name"        : "tiktok_web",
             "battery_info"    : 1,
@@ -46,6 +48,7 @@ class Gen:
         
         __base_params.update(
                 {
+                'msToken'     : '%s' % msToken.get_value(),
                 "X-Bogus"     : '%s' % XBogus.get_value(),
                 "_signature"  : '%s' % self.__get_signature(__url_base + urlencode(__base_params))
             }
@@ -113,7 +116,10 @@ class Gen:
                 + '/passport/web/account/info/?'
         )
         
-        __base_params = self.__base_params(__base_url)
+        __base_params = self.__base_params(
+            __base_url, 
+            1459
+        )
         
         __response = requests.get(
             url = (
@@ -124,13 +130,41 @@ class Gen:
         
         return __response.json()
     
+    def __compliance_settings(self):
+        __base_url = (
+            'https://'
+                + 'www.tiktok.com'
+                + '/api/compliance/settings/?'
+        )
+        
+        __base_params = self.__base_params(
+            __base_url, 
+            {
+                'priority_region': '',
+                'referer': '',
+                'fromWeb': '1',
+                'from_page': '',
+            }
+        )
+
+        __response = requests.get(
+            url = (
+                __base_url + __base_params
+            ),
+            headers = self.__base_headers()
+        )
+        
+        return __response.json()
+            
+        
+        
     def main(self):
         self.__wid = self.__get_wid()
         self.__client.cookies.set(
             "__tea_cache_tokens_1988", self.__cache_token(self.__wid)
         )
+        self.__compliance_settings = self.__compliance_settings()
         self.__account_info = self.__account_info()
-        print(self.__account_info)
 
 # Gen().main() 
 if __name__ == '__main__':
