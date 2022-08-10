@@ -6,7 +6,7 @@ import random
 import re
 
 from urllib.parse import *
-from utils.signature import Signature
+from utils.signer.signature import Signer
 from utils.bogus import XBogus
 
 class Gen:
@@ -14,7 +14,7 @@ class Gen:
         self.__client = requests.Session()
         self.__wid = None
         
-    def __base_params(self, addon: json = {}):
+    def __base_params(self, __url_base, addon: json = {}):
         
         __base_params = {
             "aid"             : 1459,
@@ -40,12 +40,17 @@ class Gen:
             "screen_width"    : 1920,
             "tz_name"         : "Europe/Paris",
             "webcast_language": "en",
-            "X-Bogus"         : '%s' % XBogus.get_value(),
-            "_signature"      : '%s' % Signature.get_value()
         }
         
         __base_params.update(addon)
         
+        __base_params.update(
+                {
+                "X-Bogus"     : '%s' % XBogus.get_value(),
+                "_signature"  : '%s' % self.__get_signature(__url_base + urlencode(__base_params))
+            }
+        )
+
         return urlencode(__base_params)
     
     def __base_headers(self, addon: json = {}) -> json:
@@ -84,6 +89,11 @@ class Gen:
         for i in cookies.items():
             cookies_str = cookies_str + i[0] + "=" + i[1] + "; "
         return cookies_str[: len(cookies_str) - 2]
+    
+    def __get_signature(self, __url: str) -> str:
+        with Signer() as signer:
+            verify_fp, signature, device_id, tt_params = signer._sign(__url)
+            return signature
 
     def __get_wid(self) -> str:
 
@@ -97,12 +107,17 @@ class Gen:
         )
         
     def __account_info(self):
-        __response = requests.get(
-            url = (
-                'https://'
+        __base_url = (
+            'https://'
                 + 'www.tiktok.com'
                 + '/passport/web/account/info/?'
-                + self.__base_params()
+        )
+        
+        __base_params = self.__base_params(__base_url)
+        
+        __response = requests.get(
+            url = (
+                __base_url + __base_params
             ),
             headers = self.__base_headers()
         )
@@ -119,19 +134,7 @@ class Gen:
 
 # Gen().main() 
 if __name__ == '__main__':
-    # Gen().main()
+    Gen().main()
     # url = 'https://www.tiktok.com/passport/web/account/info/?aid=1459&app_language=en&app_name=tiktok_web&battery_info=1&browser_language=en&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F103.0.0.0%20Safari%2F537.36&channel=tiktok_web&cookie_enabled=true&device_id=7129986638319289862&device_platform=web_pc&focus_state=true&from_page=&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=FR&screen_height=1080&screen_width=1920&tz_name=Europe%2FParis&webcast_language=en&msToken=&X-Bogus=DFSzswVOm30ANGA/S6RswGXyYJWC&_signature=_02B4Z6wo00001QzTIbAAAIDAL3IPHGpxIqEM0yUAACHI1c'
     # print(json.dumps(dict(parse_qsl(urlsplit(url).query)), indent=4))
     
-    
-    from utils.signer.signature import Signer
-
-    with Signer() as signer:
-        verify_fp, signature, device_id, tt_params = signer._sign('https://us.tiktok.com/api/commit/follow/user/?aid=1988&app_language=zh-Hant-TW&app_name=tiktok_web&battery_info=0.58&browser_language=zh-CN&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F97.0.4692.99%20Safari%2F537.36&channel=tiktok_web&channel_id=0&cookie_enabled=true&device_id=7044877592931976705&device_platform=web_pc&focus_state=true&from=18&fromWeb=1&from_page=user&from_pre=0&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=US&screen_height=900&screen_width=1440&sec_user_id=MS4wLjABAAAAYQIn0ghGQeUMmuqngrxATRDvKvq8dksgQBjXfrOdFo6wdO3DGbciDey2TfJE6EAR&type=1&tz_name=America%2FChicago&user_id=7035930273985479685&webcast_language=zh-Hant-TW&msToken=9ZVRfvLh5KCA9fRwcMTx5ysMVMj7H45hx2NXcHnbY9e1jcESeY2W74Pg3yyBDNFWV8FiPTkZKizt9BhfdgLhahVygTko7rZsISzU8zN408oycsxLlALrDRHd5mW-jBPFsda-dQ==&X-Bogus=DFSzs3fLzhXANxVYSLIiPRKeej0y&_signature=_02B4Z6wo00001j7htJQAAIDDQG3qaCLmgBY-4dgAAO5X40')
-        print(signature)
-        print(device_id)
-        print(verify_fp)
-        print(tt_params)
-
-            # # Prints the author's username of the trending video.
-            # print(trending_video.author.username)
