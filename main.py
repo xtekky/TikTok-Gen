@@ -155,9 +155,35 @@ class Gen:
         )
         
         return __response.json()
-            
+    
+    def __verification_age(self):
         
+        __base_url = (
+            'https://'
+                + 'www.tiktok.com'
+                + '/api/v3/register/verification/age/?'
+        )
         
+        __base_params = self.__base_params(
+            __base_url
+        )
+        
+        __response = requests.post(
+            url = (
+                __base_url + __base_params
+            ),
+            headers = self.__base_headers(),
+            data = {
+                'fromWeb'            : '1',
+                'source'             : 'web',
+                'session_registered' : '1',
+                'birthday'           : f'1985-03-03',
+                'tt_csrf_token'      : self.__client.cookies.get_dict()['tt_csrf_token'],
+            }
+        )
+        
+        return __response.json()
+
     def main(self):
         self.__wid = self.__get_wid()
         self.__client.cookies.set(
@@ -165,10 +191,13 @@ class Gen:
         )
         self.__compliance_settings = self.__compliance_settings()
         self.__account_info = self.__account_info()
+        self.__verification_age = self.__verification_age()
+        print(self.__verification_age)
+
 
 # Gen().main() 
 if __name__ == '__main__':
     Gen().main()
-    # url = 'https://www.tiktok.com/passport/web/account/info/?aid=1459&app_language=en&app_name=tiktok_web&battery_info=1&browser_language=en&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F103.0.0.0%20Safari%2F537.36&channel=tiktok_web&cookie_enabled=true&device_id=7129986638319289862&device_platform=web_pc&focus_state=true&from_page=&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=FR&screen_height=1080&screen_width=1920&tz_name=Europe%2FParis&webcast_language=en&msToken=&X-Bogus=DFSzswVOm30ANGA/S6RswGXyYJWC&_signature=_02B4Z6wo00001QzTIbAAAIDAL3IPHGpxIqEM0yUAACHI1c'
+    # url = 'https://www.tiktok.com/api/v3/register/verification/age/?aid=1988&app_language=en&app_name=tiktok_web&battery_info=1&browser_language=en&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F103.0.0.0%20Safari%2F537.36&channel=tiktok_web&cookie_enabled=true&device_id=7129986638319289862&device_platform=web_pc&focus_state=true&from_page=&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=FR&screen_height=1080&screen_width=1920&tz_name=Europe%2FParis&webcast_language=en&msToken=gzykK1ETstTCeYKjIVe4dqDNwxhniloG_x0Fr5w1TpeJFZ1fjYFG_8_FKGTRLMatXBwyWzRCUY5oJ0HvPxOtVa-jjrH9mw16WOdclrv3JxZLXmqxPhIsZbD45WLN0Q==&X-Bogus=DFSzswVL8OEZHXJAS6RssTXyYJUU&_signature=_02B4Z6wo00001FL3dvwAAIDBcVZYULlKOERS93JAAHZWf9'
     # print(json.dumps(dict(parse_qsl(urlsplit(url).query)), indent=4))
-    
+ 
