@@ -117,7 +117,7 @@ class Gen:
         self.__account_info = self.__account_info()
         print(self.__account_info)
 
-# Gen().main()
+# Gen().main() 
 if __name__ == '__main__':
     Gen().main()
     # url = 'https://www.tiktok.com/passport/web/account/info/?aid=1459&app_language=en&app_name=tiktok_web&battery_info=1&browser_language=en&browser_name=Mozilla&browser_online=true&browser_platform=Win32&browser_version=5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F103.0.0.0%20Safari%2F537.36&channel=tiktok_web&cookie_enabled=true&device_id=7129986638319289862&device_platform=web_pc&focus_state=true&from_page=&history_len=2&is_fullscreen=false&is_page_visible=true&os=windows&priority_region=&referer=&region=FR&screen_height=1080&screen_width=1920&tz_name=Europe%2FParis&webcast_language=en&msToken=&X-Bogus=DFSzswVOm30ANGA/S6RswGXyYJWC&_signature=_02B4Z6wo00001QzTIbAAAIDAL3IPHGpxIqEM0yUAACHI1c'
